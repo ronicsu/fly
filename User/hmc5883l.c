@@ -59,7 +59,7 @@
 *    EXPORT:向外提供   * 
 *----------------------*/
 //none
-
+#include <stdio.h>
 #define HMC5883L_Addr       0x3C            //磁场传感器器件地址
 #define HMC5883L_INT_PRIO   5
 
@@ -160,6 +160,15 @@ void  HMC5883L_Init(void)
 / 输出参数:none
 / 使用说明:none
 ******************************************************************************/
+void Delayms(uint32_t time)
+{
+   uint16_t i=0;  
+   while(time--)
+   {
+      i=8000;
+      while(i--);
+   }  
+}
 void HMC5883L_Read(tg_HMC5883L_TYPE * ptResult)
 {
     uint8_t tmp[6];
@@ -167,7 +176,7 @@ void HMC5883L_Read(tg_HMC5883L_TYPE * ptResult)
     
     Single_Write(HMC5883L_Addr,HMC5883L_REGA,0x14);   //30Hz
     Single_Write(HMC5883L_Addr,HMC5883L_MODE,0x00);   //连续测量模式
-    delay_ms(10);
+    Delayms(10);
     
     tmp[0]=Single_Read(HMC5883L_Addr,HMC5883L_HX_H);//OUT_X_L_A
     tmp[1]=Single_Read(HMC5883L_Addr,HMC5883L_HX_L);//OUT_X_H_A
@@ -232,12 +241,10 @@ void HMC5883L_Calibrate(void)
 {
    Single_Write(HMC5883L_Addr,HMC5883L_REGA,0x15);   //30Hz,启动自检模式
    Single_Write(HMC5883L_Addr,HMC5883L_MODE,0x01);   //单一测量模式
-   delay_ms(10);
+   Delayms(10);
    Single_Write(HMC5883L_Addr,HMC5883L_REGA,0x14);
    Single_Write(HMC5883L_Addr,HMC5883L_MODE,0x00);   //回到工作模式
 }
-
-
 
 /******************************************************************************
 / 函数功能:打印HMC的传感器数据
@@ -260,8 +267,8 @@ void HMC5883L_Printf(tg_HMC5883L_TYPE * ptResult)
     angle= atan2(y,x) * (180 / 3.14159265) + 180;   //160us计算时间
     //LED1_OFF();
     ptResult->ha = (int16_t)(angle*10);   // 得到方向精确到0.1°
-   // printf("HMC5883L:\thx: %4d,\thy: %4d,\thz: %4d,\t%4d\n\r",
-     //       ptResult->hx, ptResult->hy, ptResult->hz, ptResult->ha/10);
+ //   printf("HMC5883L:\thx: %4d,\thy: %4d,\thz: %4d,\t%4d\n\r",
+    //        ptResult->hx, ptResult->hy, ptResult->hz, ptResult->ha/10);
 }
 
 

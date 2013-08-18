@@ -465,185 +465,179 @@ static void run_self_test(void)
 //    hal.rx.cmd = 0;
 //}
 #define  UART1_Put_Char UsartSend
-/**************************????********************************************
-*????:                void UART1_ReportIMU(int16_t yaw,int16_t pitch,int16_t roll
-                                ,int16_t alt,int16_t tempr,int16_t press)
-*?  ?:                ????????????????
-????:
-                int16_t yaw ??????????????0.1? 0 -> 3600  ?? 0 -> 360.0?
-                int16_t pitch ?????????,?? 0.1??-900 - 900 ?? -90.0 -> 90.0 ?
-                int16_t roll  ??????????,??0.1?? -1800 -> 1800 ?? -180.0  ->  180.0?
-                int16_t alt   ????? ??0.1??  ????????
-                int16_t tempr ?? ? ??0.1???   ??:?????????????
-                int16_t press ???????10Pa  ???????101300pa ??????????????????10??????
-                int16_t IMUpersec  ?????????IMUpersec???
-????:??        
-*******************************************************************************/
 void UART1_ReportIMU(int16_t yaw,int16_t pitch,int16_t roll
 ,int16_t alt,int16_t tempr,int16_t press,int16_t IMUpersec)
 {
-        unsigned int temp=0xaF+2;
-        char ctemp;
-        UART1_Put_Char(0xa5);
-        UART1_Put_Char(0x5a);
-        UART1_Put_Char(14+2);
-        UART1_Put_Char(0xA1);
+ 	unsigned int temp=0xaF+2;
+	char ctemp;
+	UART1_Put_Char(0xa5);
+	UART1_Put_Char(0x5a);
+	UART1_Put_Char(14+2);
+	UART1_Put_Char(0xA1);
 
-        if(yaw<0)yaw=32768-yaw;
-        ctemp=yaw>>8;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
-        ctemp=yaw;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
+	if(yaw<0)yaw=32768-yaw;
+	ctemp=yaw>>8;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
+	ctemp=yaw;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
 
-        if(pitch<0)pitch=32768-pitch;
-        ctemp=pitch>>8;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
-        ctemp=pitch;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
+	if(pitch<0)pitch=32768-pitch;
+	ctemp=pitch>>8;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
+	ctemp=pitch;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
 
-        if(roll<0)roll=32768-roll;
-        ctemp=roll>>8;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
-        ctemp=roll;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
+	if(roll<0)roll=32768-roll;
+	ctemp=roll>>8;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
+	ctemp=roll;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
 
-        if(alt<0)alt=32768-alt;
-        ctemp=alt>>8;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
-        ctemp=alt;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
+	if(alt<0)alt=32768-alt;
+	ctemp=alt>>8;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
+	ctemp=alt;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
 
-        if(tempr<0)tempr=32768-tempr;
-        ctemp=tempr>>8;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
-        ctemp=tempr;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
+	if(tempr<0)tempr=32768-tempr;
+	ctemp=tempr>>8;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
+	ctemp=tempr;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
 
-        if(press<0)press=32768-press;
-        ctemp=press>>8;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
-        ctemp=press;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
+	if(press<0)press=32768-press;
+	ctemp=press>>8;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
+	ctemp=press;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
 
-        UART1_Put_Char(temp%256);
-        UART1_Put_Char(0xaa);
+	UART1_Put_Char(temp%256);
+	UART1_Put_Char(0xaa);
 }
 
 /**************************????********************************************
-*????:                void UART1_ReportMotion(int16_t ax,int16_t ay,int16_t az,int16_t gx,int16_t gy,int16_t gz,
-                                        int16_t hx,int16_t hy,int16_t hz)
-*?  ?:                ???????????????
+*????:		void UART1_ReportMotion(int16_t ax,int16_t ay,int16_t az,int16_t gx,int16_t gy,int16_t gz,
+					int16_t hx,int16_t hy,int16_t hz)
+*?  ?:		???????????????
 ????:
-        int16_t ax  ??? X?ADC?? ?? :???????
-        int16_t ay  ??? Y?ADC?? ?? :???????
-        int16_t az  ??? Z?ADC?? ?? :???????
-        int16_t gx  ??? X?ADC?? ?? :???????
-        int16_t gy  ??? Y?ADC?? ?? :???????
-        int16_t gz  ??? Z?ADC?? ?? :???????
-        int16_t hx  ??? X?ADC?? ?? :???????
-        int16_t hy  ??? Y?ADC?? ?? :???????
-        int16_t hz  ??? Z?ADC?? ?? :???????
-        
-????:??        
+	int16_t ax  ??? X?ADC?? ?? :???????
+	int16_t ay  ??? Y?ADC?? ?? :???????
+	int16_t az  ??? Z?ADC?? ?? :???????
+	int16_t gx  ??? X?ADC?? ?? :???????
+	int16_t gy  ??? Y?ADC?? ?? :???????
+	int16_t gz  ??? Z?ADC?? ?? :???????
+	int16_t hx  ??? X?ADC?? ?? :???????
+	int16_t hy  ??? Y?ADC?? ?? :???????
+	int16_t hz  ??? Z?ADC?? ?? :???????
+	
+????:??	
 *******************************************************************************/
 void UART1_ReportMotion(int16_t ax,int16_t ay,int16_t az,int16_t gx,int16_t gy,int16_t gz,
-                                        int16_t hx,int16_t hy,int16_t hz)
+					int16_t hx,int16_t hy,int16_t hz)
 {
-        unsigned int temp=0xaF+9;
-        char ctemp;
-        UART1_Put_Char(0xa5);
-        UART1_Put_Char(0x5a);
-        UART1_Put_Char(14+8);
-        UART1_Put_Char(0xA2);
+ 	unsigned int temp=0xaF+9;
+	char ctemp;
+	UART1_Put_Char(0xa5);
+	UART1_Put_Char(0x5a);
+	UART1_Put_Char(14+8);
+	UART1_Put_Char(0xA2);
 
-        if(ax<0)ax=32768-ax;
-        ctemp=ax>>8;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
-        ctemp=ax;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
+	if(ax<0)ax=32768-ax;
+	ctemp=ax>>8;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
+	ctemp=ax;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
 
-        if(ay<0)ay=32768-ay;
-        ctemp=ay>>8;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
-        ctemp=ay;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
+	if(ay<0)ay=32768-ay;
+	ctemp=ay>>8;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
+	ctemp=ay;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
 
-        if(az<0)az=32768-az;
-        ctemp=az>>8;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
-        ctemp=az;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
+	if(az<0)az=32768-az;
+	ctemp=az>>8;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
+	ctemp=az;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
 
-        if(gx<0)gx=32768-gx;
-        ctemp=gx>>8;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
-        ctemp=gx;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
+	if(gx<0)gx=32768-gx;
+	ctemp=gx>>8;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
+	ctemp=gx;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
 
-        if(gy<0)gy=32768-gy;
-        ctemp=gy>>8;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
-        ctemp=gy;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
+	if(gy<0)gy=32768-gy;
+	ctemp=gy>>8;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
+	ctemp=gy;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
 //-------------------------
-        if(gz<0)gz=32768-gz;
-        ctemp=gz>>8;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
-        ctemp=gz;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
+	if(gz<0)gz=32768-gz;
+	ctemp=gz>>8;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
+	ctemp=gz;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
 
-        if(hx<0)hx=32768-hx;
-        ctemp=hx>>8;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
-        ctemp=hx;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
+	if(hx<0)hx=32768-hx;
+	ctemp=hx>>8;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
+	ctemp=hx;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
 
-        if(hy<0)hy=32768-hy;
-        ctemp=hy>>8;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
-        ctemp=hy;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
+	if(hy<0)hy=32768-hy;
+	ctemp=hy>>8;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
+	ctemp=hy;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
 
-        if(hz<0)hz=32768-hz;
-        ctemp=hz>>8;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
-        ctemp=hz;
-        UART1_Put_Char(ctemp);
-        temp+=ctemp;
+	if(hz<0)hz=32768-hz;
+	ctemp=hz>>8;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
+	ctemp=hz;
+	UART1_Put_Char(ctemp);
+	temp+=ctemp;
 
-        UART1_Put_Char(temp%256);
-        UART1_Put_Char(0xaa);
-			}
+	UART1_Put_Char(temp%256);
+	UART1_Put_Char(0xaa);
+}
 
+
+
+
+
+
+
+
+			
 /* Every time new gyro data is available, this function is called in an
  * ISR context. In this example, it sets a flag protecting the FIFO read
  * function.
@@ -657,14 +651,15 @@ float q0=1.0f,q1=0.0f,q2=0.0f,q3=0.0f;
 			
 void mpu6050_timer_callback(unsigned long para)
 {
-	{
+	
 		
      unsigned long sensor_timestamp;
      short gyro[3], accel[3], sensors;
      unsigned char more;
      long quat[4];
-	   float Yaw,Roll,Pitch;
-	 dmp_read_fifo(gyro, accel, quat, &sensor_timestamp, &sensors,
+	   short Yaw,Roll,Pitch;
+		
+	   dmp_read_fifo(gyro, accel, quat, &sensor_timestamp, &sensors,
                 &more);	 
 		
 	//	PrintChar("in Calculating quaternion steps.....\n");
@@ -695,9 +690,9 @@ void mpu6050_timer_callback(unsigned long para)
 	//	 PrintInt(quat[3]);PrintChar(" \n\n");
 		 
 		 
-		 Pitch  = asin(-2 * q1 * q3 + 2 * q0* q2)* 57.3; // pitch
-  	 Roll = atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2* q2 + 1)* 57.3; // roll
-		 Yaw = 	atan2(2*(q1*q2 + q0*q3),q0*q0+q1*q1-q2*q2-q3*q3) * 57.3;
+		 Pitch  =(short)( asin(-2 * q1 * q3 + 2 * q0* q2)* 573); // pitch
+  	 Roll =(short) (atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2* q2 + 1)* 573); // roll
+		 Yaw = 	(short)(atan2(2*(q1*q2 + q0*q3),q0*q0+q1*q1-q2*q2-q3*q3) * 573);
 		 
 		
 		 
@@ -715,9 +710,15 @@ void mpu6050_timer_callback(unsigned long para)
 //		 PrintInt(accel[2]);PrintChar(" \n");
 		 }
       //send_packet(PACKET_TYPE_QUAT, quat);
-	   UART1_ReportIMU(Yaw,Pitch, Roll,0,0,0,0);
-		 UART1_ReportMotion(accel[0],accel[1],accel[2],gyro[0],gyro[1],gyro[2],0,0,0);
-  }
+	if (sensors & INV_WXYZ_QUAT ){  
+		//  HMC5883L_MultRead(&hmc);
+	//	 Print(hmc.hx);
+	//	 Print(hmc.hy);
+		 
+  		UART1_ReportIMU(Yaw,Pitch, Roll,0,0,0,0);
+	    UART1_ReportMotion(accel[0],accel[1],accel[2],gyro[0],gyro[1],gyro[2],0,0,0);
+	}
+//  HMC5883L_Start();
 }	
 
 
@@ -795,55 +796,57 @@ int main(void)
 //  GPIO_Configuration(); 
   USART_Configuration();
   i2cInit();//IIC总线的初始化，尼玛纠结了这么长时间
+//	HMC5883L_Init();
+//	HMC5883L_Start();
   result = mpu_init();
   if(!result)
   {
 	  //mpu_init();
-	  PrintChar("mpu initialization complete......\n ");
+//	  PrintChar("mpu initialization complete......\n ");
 	  //mpu_set_sensor
 	  if(!mpu_set_sensors(INV_XYZ_GYRO | INV_XYZ_ACCEL))
 	  {
-	  	 PrintChar("mpu_set_sensor complete ......\n");
+//	  	 PrintChar("mpu_set_sensor complete ......\n");
 	  }
 	  else
 	  {
-	  	 PrintChar("mpu_set_sensor come across error ......\n");
+	 // 	 PrintChar("mpu_set_sensor come across error ......\n");
 	  }
 	  //mpu_configure_fifo
 	  if(!mpu_configure_fifo(INV_XYZ_GYRO | INV_XYZ_ACCEL))
 	  {
-	  	 PrintChar("mpu_configure_fifo complete ......\n");
+	//  	 PrintChar("mpu_configure_fifo complete ......\n");
 	  }
 	  else
 	  {
-	  	 PrintChar("mpu_configure_fifo come across error ......\n");
+	//  	 PrintChar("mpu_configure_fifo come across error ......\n");
 	  }
 	  //mpu_set_sample_rate
 	  if(!mpu_set_sample_rate(DEFAULT_MPU_HZ))
 	  {
-	  	 PrintChar("mpu_set_sample_rate complete ......\n");
+	//  	 PrintChar("mpu_set_sample_rate complete ......\n");
 	  }
 	  else
 	  {
-	  	 PrintChar("mpu_set_sample_rate error ......\n");
+	  //	 PrintChar("mpu_set_sample_rate error ......\n");
 	  }
 	  //dmp_load_motion_driver_firmvare
 	  if(!dmp_load_motion_driver_firmware())
 	  {
-	  	PrintChar("dmp_load_motion_driver_firmware complete ......\n");
+	//  	PrintChar("dmp_load_motion_driver_firmware complete ......\n");
 	  }
 	  else
 	  {
-	  	PrintChar("dmp_load_motion_driver_firmware come across error ......\n");
+	//  	PrintChar("dmp_load_motion_driver_firmware come across error ......\n");
 	  }
 	  //dmp_set_orientation
 	  if(!dmp_set_orientation(inv_orientation_matrix_to_scalar(gyro_orientation)))
 	  {
-	  	 PrintChar("dmp_set_orientation complete ......\n");
+	 // 	 PrintChar("dmp_set_orientation complete ......\n");
 	  }
 	  else
 	  {
-	  	 PrintChar("dmp_set_orientation come across error ......\n");
+//	  	 PrintChar("dmp_set_orientation come across error ......\n");
 	  }
 	  //dmp_enable_feature
 	  if(!dmp_enable_feature(DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_TAP |

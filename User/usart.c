@@ -1,5 +1,6 @@
 #include "stm32f10x.h"
 #include "usart.h"
+#include <stdio.h>
 
 /*******************************************************************************
 "	函数名：USART_Configuration											  "
@@ -131,4 +132,17 @@ void usart_INIT(void)
 	NVIC_Init(&NVIC_InitStructure);
 }	
 
+/******************************************************************************
+/ º¯Êý¹¦ÄÜ:printfÖØ¶¨Ïò
+/ ÐÞ¸ÄÈÕÆÚ:2012-8-13 17:41:41
+/ ÊäÈë²ÎÊý:none
+/ Êä³ö²ÎÊý:none
+/ Ê¹ÓÃËµÃ÷:none
+******************************************************************************/
+int fputc(int ch,FILE *f)
+{
+    USART1->DR = ch;
+    while( (USART1->SR & USART_FLAG_TC) == RESET );
+    return ch;
+}
 
