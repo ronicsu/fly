@@ -347,7 +347,7 @@
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
             <VariousControls>
-              <MiscControls></MiscControls>
+              <MiscControls>--c99</MiscControls>
               <Define>USE_STDPERIPH_DRIVER,STM32F10X_HD</Define>
               <Undefine></Undefine>
               <IncludePath>..\User;..\Libraries\STM32F10x_StdPeriph_Driver\inc;..\Libraries\CMSIS\CM3\CoreSupport;..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x;..\eMPL</IncludePath>
@@ -440,6 +440,11 @@
               <FileName>hmc5883l.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\hmc5883l.c</FilePath>
+            </File>
+            <File>
+              <FileName>minus_os.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\minus_os.c</FilePath>
             </File>
           </Files>
         </Group>

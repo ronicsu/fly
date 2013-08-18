@@ -436,6 +436,11 @@
               <FileType>1</FileType>
               <FilePath>..\User\usart.c</FilePath>
             </File>
+            <File>
+              <FileName>hmc5883l.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\hmc5883l.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
