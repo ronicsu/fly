@@ -209,10 +209,12 @@ void HMC5883L_MultRead(tg_HMC5883L_TYPE * ptResult)
     if(true == Mult_Read(HMC5883L_Addr,HMC5883L_HX_H,tmp,6))   //多读读出传感器数据
     {
         //修正数据(根据x轴修正y轴输出)
-        ptResult->hx  = (int16_t)((tmp[0] << 8) | tmp[1])+HMC5883L_OFFSET_X;
-        s32Val = (int16_t)((tmp[4] << 8) | tmp[5])+HMC5883L_OFFSET_Y;    
-        s32Val = (s32Val*HMC5883L_GAIN_Y)/10000;
-        ptResult->hy    = (int16_t)s32Val;
+     //   ptResult->hx  = (int16_t)((tmp[0] << 8) | tmp[1])+HMC5883L_OFFSET_X;
+     //   s32Val = (int16_t)((tmp[4] << 8) | tmp[5])+HMC5883L_OFFSET_Y;    
+    //    s32Val = (s32Val*HMC5883L_GAIN_Y)/10000;
+     //   ptResult->hy    = (int16_t)s32Val;
+      ptResult->hx    = (int16_t)((tmp[0] << 8) | tmp[1]);
+	 ptResult->hy   = (int16_t)((tmp[4] << 8) | tmp[5]);
         ptResult->hz    = (int16_t)((tmp[2] << 8) | tmp[3]);
     }
 } 

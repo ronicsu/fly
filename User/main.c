@@ -793,7 +793,7 @@ void LED_GPIO_Config(void)
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
 
 	/*GPIO脚输出高低电平*/
-	//GPIO_ResetBits(GPIOC,GPIO_Pin_0|GPIO_Pin_1|GPIO_Pin_2|GPIO_Pin_3);						 						 
+	GPIO_SetBits(GPIOC,GPIO_Pin_13|GPIO_Pin_14|GPIO_Pin_15);						 						 
 	
 }
 
