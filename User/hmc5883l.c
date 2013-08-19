@@ -120,25 +120,12 @@ typedef struct
 ******************************************************************************/
 #include <math.h>
 
-char Mult_Read(uint8_t SlaveAddress,uint8_t REG_Address,uint8_t * ptChar,uint8_t size)
-{
-	if(i2cRead(SlaveAddress,REG_Address,size,ptChar))
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
-}
 
-#define Single_Write i2cWrite
-uint8_t  Single_Read(uint8_t addr,uint8_t reg)
-{
-	uint8_t val;
-	i2cRead(addr,reg,1,&val);
-	return val;
-}
+
+
+char i2cWrite(uint8_t addr, uint8_t reg, uint8_t data);
+
+
 
 /******************************************************************************
 / 函数功能:初始化HMC5883
@@ -174,8 +161,8 @@ void HMC5883L_Read(tg_HMC5883L_TYPE * ptResult)
     uint8_t tmp[6];
     int32_t s32Val;
     
-    Single_Write(HMC5883L_Addr,HMC5883L_REGA,0x14);   //30Hz
-    Single_Write(HMC5883L_Addr,HMC5883L_MODE,0x00);   //连续测量模式
+    i2cWrite(HMC5883L_Addr,HMC5883L_REGA,0x14);   //30Hz
+    i2cWrite(HMC5883L_Addr,HMC5883L_MODE,0x00);   //连续测量模式
     Delayms(10);
     
     tmp[0]=Single_Read(HMC5883L_Addr,HMC5883L_HX_H);//OUT_X_L_A
@@ -239,11 +226,11 @@ void HMC5883L_MultRead(tg_HMC5883L_TYPE * ptResult)
 ******************************************************************************/
 void HMC5883L_Calibrate(void)
 {
-   Single_Write(HMC5883L_Addr,HMC5883L_REGA,0x15);   //30Hz,启动自检模式
-   Single_Write(HMC5883L_Addr,HMC5883L_MODE,0x01);   //单一测量模式
+   i2cWrite(HMC5883L_Addr,HMC5883L_REGA,0x15);   //30Hz,启动自检模式
+   i2cWrite(HMC5883L_Addr,HMC5883L_MODE,0x01);   //单一测量模式
    Delayms(10);
-   Single_Write(HMC5883L_Addr,HMC5883L_REGA,0x14);
-   Single_Write(HMC5883L_Addr,HMC5883L_MODE,0x00);   //回到工作模式
+   i2cWrite(HMC5883L_Addr,HMC5883L_REGA,0x14);
+   i2cWrite(HMC5883L_Addr,HMC5883L_MODE,0x00);   //回到工作模式
 }
 
 /******************************************************************************

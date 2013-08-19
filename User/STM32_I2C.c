@@ -165,11 +165,11 @@ int8_t i2cwrite(uint8_t addr, uint8_t reg, uint8_t len, uint8_t * data)
 {
 	if(i2cWriteBuffer(addr,reg,len,data))
 	{
-		return TRUE;
+		return 0;
 	}
 	else
 	{
-		return FALSE;
+		return -1;
 	}
 	//return FALSE;
 }
@@ -177,11 +177,11 @@ int8_t i2cread(uint8_t addr, uint8_t reg, uint8_t len, uint8_t *buf)
 {
 	if(i2cRead(addr,reg,len,buf))
 	{
-		return TRUE;
+		return 0;
 	}
 	else
 	{
-		return FALSE;
+		return -1;
 	}
 	//return FALSE;
 }
@@ -202,6 +202,68 @@ bool i2cWrite(uint8_t addr, uint8_t reg, uint8_t data)
     I2C_Stop();
     return true;
 }
+/******************************************************************************
+/ 函数功能:单字节写入
+/ 修改日期:none
+/ 输入参数:
+/   @arg SlaveAddress   从器件地址
+/   @arg REG_Address    寄存器地址
+/ 输出参数: 读出的字节数据
+/ 使用说明:这时一个完整的单字节读取函数
+******************************************************************************/
+uint8_t Single_Read(uint8_t SlaveAddress,uint8_t REG_Address)
+{   
+    uint8_t REG_data;       
+    if(!I2C_Start())return false;
+    I2C_SendByte(SlaveAddress); //I2C_SendByte(((REG_Address & 0x0700) >>7) | REG_Address & 0xFFFE);//设置高起始地址+器件地址 
+    if(!I2C_WaitAck()){I2C_Stop();return false;}
+    I2C_SendByte((u8) REG_Address);   //设置低起始地址      
+    I2C_WaitAck();
+    I2C_Start();
+    I2C_SendByte(SlaveAddress+1);
+    I2C_WaitAck();
+
+    REG_data= I2C_ReceiveByte();
+    I2C_NoAck();
+    I2C_Stop();
+    //return true;
+    return REG_data;
+}
+bool Single_Write(uint8_t SlaveAddress,uint8_t REG_Address,uint8_t REG_data)
+{
+    if(!I2C_Start())return false;
+    I2C_SendByte(SlaveAddress);   //发送设备地址+写信号//I2C_SendByte(((REG_Address & 0x0700) >>7) | SlaveAddress & 0xFFFE);//设置高起始地址+器件地址 
+    if(!I2C_WaitAck()){I2C_Stop(); return false;}
+    I2C_SendByte(REG_Address );   //设置低起始地址      
+    I2C_WaitAck();  
+    I2C_SendByte(REG_data);
+    I2C_WaitAck();   
+    I2C_Stop(); 
+    //delay5ms();
+    return true;
+}
+
+uint8_t I2C_RadeByte(void)  //数据从高位到低位//
+{ 
+    u8 i=8;
+    u8 ReceiveByte=0;
+
+    SDA_H;              
+    while(i--)
+    {
+        ReceiveByte<<=1;      
+        SCL_L;
+        I2C_delay();
+        SCL_H;
+        I2C_delay();  
+        if(SDA_read)
+        {
+          ReceiveByte|=0x01;
+        }
+    }
+    SCL_L;
+    return ReceiveByte;
+} 
 
 bool i2cRead(uint8_t addr, uint8_t reg, uint8_t len, uint8_t *buf)
 {
@@ -228,6 +290,32 @@ bool i2cRead(uint8_t addr, uint8_t reg, uint8_t len, uint8_t *buf)
     }
     I2C_Stop();
     return true;
+}
+bool Mult_Read(uint8_t SlaveAddress,uint8_t REG_Address,uint8_t * ptChar,uint8_t size)
+{
+    uint8_t i;
+    
+    if(size < 1)return false;
+    if(!I2C_Start())return false;
+    I2C_SendByte(SlaveAddress);
+    if(!I2C_WaitAck()){I2C_Stop();return false;}
+    I2C_SendByte(REG_Address);    
+    I2C_WaitAck();
+    
+    I2C_Start();
+    I2C_SendByte(SlaveAddress+1);
+    I2C_WaitAck();
+    
+    //连续读出ax,ay,az数据
+    for(i=1;i<size; i++)
+    {
+        *ptChar++ = I2C_ReceiveByte();
+        I2C_Ack();
+    }
+    *ptChar++ = I2C_ReceiveByte();
+    I2C_NoAck();
+    I2C_Stop();
+    return true;    
 }
 
 uint16_t i2cGetErrorCounter(void)

@@ -715,16 +715,39 @@ void mpu6050_timer_callback(unsigned long para)
 	//	 Print(hmc.hx);
 	//	 Print(hmc.hy);
 		 
-  		UART1_ReportIMU(Yaw,Pitch, Roll,0,0,0,0);
-	    UART1_ReportMotion(accel[0],accel[1],accel[2],gyro[0],gyro[1],gyro[2],0,0,0);
+  	    //UART1_ReportIMU(Yaw,Pitch, Roll,0,0,0,0);
+	   // UART1_ReportMotion(accel[0],accel[1],accel[2],gyro[0],gyro[1],gyro[2],0,0,0);
+	//   char id=	Single_Read(0x3C,10);
+	//	Print(id);
 	}
 //  HMC5883L_Start();
+
+HMC5883L_Start();
+	   Delayms(50);
+	//   HMC5883L_MultRead(&hmc5883l);   //读磁阻仪数据(速度:慢, ms级延时过程)
+	 //  BMP085_Read(&bmp085);			 //读气压计数据(速度:慢, ms级延时过程)
+	 //  LED1_OFF();
+	   
+	   //打印数据
+	//	 if(true == sw_adxl345)ADXL345_Printf(&adxl345);	   
+	//	 if(true == sw_l3g4200d)L3G4200D_Printf(&l3g4200d);
+	//   HMC5883L_Printf(&hmc5883l);
+  //    unsigned char tmp[6];
+//	Mult_Read(0x3c,3,tmp,6);
+	Print(Single_Read(0x3C,3));
+	Print(Single_Read(0x3C,4));
+	Print(Single_Read(0x3C,5));
+	Print(Single_Read(0x3C,6));
+	Print(Single_Read(0x3C,7));
+	Print(Single_Read(0x3C,8));
+	
+
 }	
 
 
 struct minus_timer mpu6050_timer =
 {
-	.expires = -250,
+	.expires = -25000,
 	.callback = &mpu6050_timer_callback,
 	.data=(unsigned long)&mpu6050_timer
 };
@@ -758,11 +781,11 @@ void LED_GPIO_Config(void)
 
 static void LedLight(unsigned long para)
 {
-	static unsigned char i=13;
+	/*static unsigned char i=13;
 	GPIO_SetBits(GPIOC,GPIO_Pin_13|GPIO_Pin_14|GPIO_Pin_15);	
   GPIO_ResetBits(GPIOC,1<<i);	
 	if(i==15) i=13;else i++;
-	
+	*/
 
 }
 
@@ -796,7 +819,9 @@ int main(void)
 //  GPIO_Configuration(); 
   USART_Configuration();
   i2cInit();//IIC总线的初始化，尼玛纠结了这么长时间
-//	HMC5883L_Init();
+	HMC5883L_Init();
+char id=	Single_Read(0x3C,10);
+Print(id);
 //	HMC5883L_Start();
   result = mpu_init();
   if(!result)
