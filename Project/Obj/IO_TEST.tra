@@ -28,7 +28,7 @@
 ### ADS-LD Output File: '.\Obj\IO_TEST.axf'
 ### ADS-LD Command File: '.\Obj\IO_TEST.lnp'
 ### Checking for dirty Components...
-### Creating CmdFile '.\Obj\IO_TEST.lnp', Handle=0x00000ED0
+### Creating CmdFile '.\Obj\IO_TEST.lnp', Handle=0x00000F0C
 ### Writing '.lnp' file
 ### ADS-LD Command file '.\Obj\IO_TEST.lnp' is ready.
 ### ADS-LD: About to start ADS-LD Thread.

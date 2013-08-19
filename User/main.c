@@ -9,6 +9,7 @@
 #include "usart.h"
 #include "STM32_I2C.h"
 #include "minus_os.h"
+
 /** @addtogroup STM32F10x_StdPeriph_Examples
   * @{
   */
@@ -648,6 +649,20 @@ void UART1_ReportMotion(int16_t ax,int16_t ay,int16_t az,int16_t gx,int16_t gy,i
 //}
 #define q30  1073741824.0f
 float q0=1.0f,q1=0.0f,q2=0.0f,q3=0.0f;
+
+typedef struct
+{
+    int16_t  hx;
+    int16_t  hy;
+    int16_t  hz;
+    uint16_t ha;   
+}tg_HMC5883L_TYPE;
+
+
+tg_HMC5883L_TYPE hmc;
+
+
+
 			
 void mpu6050_timer_callback(unsigned long para)
 {
@@ -711,19 +726,22 @@ void mpu6050_timer_callback(unsigned long para)
 		 }
       //send_packet(PACKET_TYPE_QUAT, quat);
 	if (sensors & INV_WXYZ_QUAT ){  
-		//  HMC5883L_MultRead(&hmc);
-	//	 Print(hmc.hx);
-	//	 Print(hmc.hy);
 		 
-  	    //UART1_ReportIMU(Yaw,Pitch, Roll,0,0,0,0);
-	   // UART1_ReportMotion(accel[0],accel[1],accel[2],gyro[0],gyro[1],gyro[2],0,0,0);
+		 
+  	    UART1_ReportIMU(Yaw,Pitch, Roll,0,0,0,0);
+	    UART1_ReportMotion(accel[0],accel[1],accel[2],gyro[0],gyro[1],gyro[2],hmc.hx,hmc.hy,hmc.hz);
 	//   char id=	Single_Read(0x3C,10);
 	//	Print(id);
 	}
 //  HMC5883L_Start();
+HMC5883L_MultRead(&hmc);
+//		Print(hmc.hx);
+//		Print(hmc.hy);
+//		Print(hmc.hz);
+
 
 HMC5883L_Start();
-	   Delayms(50);
+	//   Delayms(50);
 	//   HMC5883L_MultRead(&hmc5883l);   //读磁阻仪数据(速度:慢, ms级延时过程)
 	 //  BMP085_Read(&bmp085);			 //读气压计数据(速度:慢, ms级延时过程)
 	 //  LED1_OFF();
@@ -732,22 +750,23 @@ HMC5883L_Start();
 	//	 if(true == sw_adxl345)ADXL345_Printf(&adxl345);	   
 	//	 if(true == sw_l3g4200d)L3G4200D_Printf(&l3g4200d);
 	//   HMC5883L_Printf(&hmc5883l);
-  //    unsigned char tmp[6];
-//	Mult_Read(0x3c,3,tmp,6);
+   //   unsigned char tmp[6];
+	//Mult_Read(0x3c,3,tmp,6);
+	/*
 	Print(Single_Read(0x3C,3));
 	Print(Single_Read(0x3C,4));
 	Print(Single_Read(0x3C,5));
 	Print(Single_Read(0x3C,6));
 	Print(Single_Read(0x3C,7));
 	Print(Single_Read(0x3C,8));
-	
+	*/
 
 }	
 
 
 struct minus_timer mpu6050_timer =
 {
-	.expires = -25000,
+	.expires = -250,
 	.callback = &mpu6050_timer_callback,
 	.data=(unsigned long)&mpu6050_timer
 };
