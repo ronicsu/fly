@@ -25,7 +25,7 @@
 #define NO_MOTION       (1)
 
 /* Starting sampling rate. */
-#define DEFAULT_MPU_HZ  (100)
+#define DEFAULT_MPU_HZ  (500)
 
 #define FLASH_SIZE      (512)
 #define FLASH_MEM_START ((void*)0x1800)
@@ -80,9 +80,9 @@ volatile unsigned char rx_new;
  * board at Invensense. If needed, please modify the matrices to match the
  * chip-to-body matrix for your particular set up.
  */
-static signed char gyro_orientation[9] = {-1, 0, 0,
+static signed char gyro_orientation[9] = {1, 0, 0,
                                            0, -1, 0,
-                                           0, 0, -1};
+                                           0, 0, 1};
 
 enum packet_type_e {
     PACKET_TYPE_ACCEL,
@@ -766,7 +766,7 @@ HMC5883L_Start();
 
 struct minus_timer mpu6050_timer =
 {
-	.expires = -250,
+	.expires = -50,
 	.callback = &mpu6050_timer_callback,
 	.data=(unsigned long)&mpu6050_timer
 };
@@ -793,7 +793,7 @@ void LED_GPIO_Config(void)
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
 
 	/*GPIO脚输出高低电平*/
-	//GPIO_ResetBits(GPIOC,GPIO_Pin_0|GPIO_Pin_1|GPIO_Pin_2|GPIO_Pin_3);						 						 
+	GPIO_SetBits(GPIOC,GPIO_Pin_13|GPIO_Pin_14|GPIO_Pin_15);						 						 
 	
 }
 
