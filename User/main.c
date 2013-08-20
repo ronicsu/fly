@@ -81,8 +81,8 @@ volatile unsigned char rx_new;
  * chip-to-body matrix for your particular set up.
  */
 static signed char gyro_orientation[9] = {-1, 0, 0,
-                                           0,-1, 0,
-                                           0, 0, 1};
+                                           0, -1, 0,
+                                           0, 0, -1};
 
 enum packet_type_e {
     PACKET_TYPE_ACCEL,
