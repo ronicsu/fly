@@ -80,9 +80,9 @@ volatile unsigned char rx_new;
  * board at Invensense. If needed, please modify the matrices to match the
  * chip-to-body matrix for your particular set up.
  */
-static signed char gyro_orientation[9] = {1, 0, 0,
-                                           0, -1, 0,
-                                           0, 0, 1};
+static signed char gyro_orientation[9] = {-1, 0, 0,
+                                           0, 1, 0,
+                                           0, 0, -1};
 
 enum packet_type_e {
     PACKET_TYPE_ACCEL,
@@ -803,7 +803,7 @@ void mpu6050_timer_callback(unsigned long para)
 	//    UART1_ReportMotion(accel[0],accel[1],accel[2],gyro[0],gyro[1],gyro[2],hmc.hx,hmc.hy,hmc.hz);
 		Uart1_Send_AF();
 		void CONTROL(float rol, float pit, float yaw);
-	//	CONTROL(Roll,Pitch, Yaw);
+		CONTROL(Roll,Pitch, Yaw);
 		
 	//   char id=	Single_Read(0x3C,10);
 	//	Print(id);
