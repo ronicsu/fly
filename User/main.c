@@ -803,7 +803,7 @@ void mpu6050_timer_callback(unsigned long para)
 	//    UART1_ReportMotion(accel[0],accel[1],accel[2],gyro[0],gyro[1],gyro[2],hmc.hx,hmc.hy,hmc.hz);
 		Uart1_Send_AF();
 		void CONTROL(float rol, float pit, float yaw);
-		CONTROL(Roll,Pitch, Yaw);
+		//CONTROL(Roll,Pitch, Yaw);
 		
 	//   char id=	Single_Read(0x3C,10);
 	//	Print(id);
@@ -905,13 +905,7 @@ RCC->APB2ENR|=1<<0;    //??
 RCC->APB1ENR|=1<<2;    //TIM4 ????  
 RCC->APB2ENR|=1<<3;    //??PORTB?? 
    
-GPIOB->CRL&=0XFFFFFFF0;//PB0 ??  
-GPIOB->CRL|=0X0000000B;//??????       
-GPIOB->ODR|=1<<0;//PB0 ??   
-    
-GPIOB->CRL&=0XFFFFFF0F;//PB1 ??  
-GPIOB->CRL|=0X000000B0;//??????       
-GPIOB->ODR|=1<<1;//PB1 ??   
+  
  
 GPIOB->CRH&=0XFFFFFFF0;//PB8 ??  
 GPIOB->CRH|=0X0000000B;//??????       
@@ -924,15 +918,7 @@ GPIOB->ODR|=1<<9;//PB9 ??
 TIM4->ARR=arr;//??????????   
 TIM4->PSC=psc;//???????  
  
-TIM4->CCMR1|=6<<4;  //CH1 PWM1??      
- //TIM4->CCMR1|=1<<3; //CH1 ?????       
-TIM4->CCER|=1<<0;  //OC1  ????     
-TIM4->CR1=0x0080;  //ARPE??   
- 
-TIM4->CCMR1|=6<<12;  //CH2 PWM1??      
- //TIM4->CCMR1|=1<<11; //CH2 ?????       
-TIM4->CCER|=1<<4;   //OC2  ????      
-TIM4->CR1=0x0080;   //ARPE?? 
+
  
 TIM4->CCMR2|=6<<4;  //CH3 PWM1??      
  //TIM4->CCMR2|=1<<3; //CH3 ?????    
@@ -947,12 +933,57 @@ TIM4->CR1=0x0080;   //ARPE??
 
  TIM4->CR1|=0x01;    //?????4
  
-TIM4->CCR1 = 1000;  //CH1?????  
-TIM4->CCR2 = 2000;  //CH2?????
+
 TIM4->CCR3 = 3000;   
 TIM4->CCR4 = 4000;  //CH6?????                 
           
 }    
+ void Timer3_Init(u16 arr,u16 psc)
+ {    
+ 
+
+RCC->APB2ENR|=1<<0;    //??  
+RCC->APB1ENR|=1<<1;    //TIM4 ????  
+RCC->APB2ENR|=1<<3;    //??PORTB?? 
+//RCC->APB2ENR|=1<<2;    //??PORTA?? 
+	 
+	 
+ 
+ 
+GPIOB->CRL&=0XFFFFFFF0;//PB0 ??  
+GPIOB->CRL|=0X0000000B;//??????       
+GPIOB->ODR|=1<<0;//PB0 ??  
+ 
+GPIOB->CRL&=0XFFFFFF0F;//PB1 ??  
+GPIOB->CRL|=0X000000B0;//??????       
+GPIOB->ODR|=1<<1;//PB1 ??   
+   
+TIM3->ARR=arr;//??????????   
+TIM3->PSC=psc;//???????  
+ 
+
+ 
+TIM3->CCMR2|=6<<4;  //CH3 PWM1??      
+ //TIM4->CCMR2|=1<<3; //CH3 ?????    
+TIM3->CCER|=1<<8;  //OC3  ????      
+TIM3->CR1=0x0080;   //ARPE?? 
+ 
+TIM3->CCMR2|=6<<12;  //CH4 PWM1??      
+ //TIM4->CCMR2|=1<<11; //CH4 ?????       
+TIM3->CCER|=1<<12;   //OC4  ????      
+TIM3->CR1=0x0080;   //ARPE?? 
+ 
+
+ TIM3->CR1|=0x01;    //?????4
+ 
+//TIM3->CCR1 = 1000;  //CH1?????  
+//TIM3->CCR2 = 4000;  //CH2?????
+TIM3->CCR3 = 2000;   
+TIM3->CCR4 = 3035;  //CH6?????                 
+          
+} 
+ 
+
 void Moto_Init(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
@@ -965,6 +996,7 @@ void Moto_Init(void)
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 	
 	Timer4_Init(5000,0);
+	Timer3_Init(5000,0);
 	
 }
 #define Moto_PwmMax 5000
