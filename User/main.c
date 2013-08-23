@@ -465,6 +465,7 @@ static void run_self_test(void)
 //    }
 //    hal.rx.cmd = 0;
 //}
+/*
 #define  UART1_Put_Char UsartSend
 void UART1_ReportIMU(int16_t yaw,int16_t pitch,int16_t roll
 ,int16_t alt,int16_t tempr,int16_t press,int16_t IMUpersec)
@@ -530,7 +531,7 @@ void UART1_ReportIMU(int16_t yaw,int16_t pitch,int16_t roll
 	UART1_Put_Char(temp%256);
 	UART1_Put_Char(0xaa);
 }
-
+*/
 /**************************????********************************************
 *????:		void UART1_ReportMotion(int16_t ax,int16_t ay,int16_t az,int16_t gx,int16_t gy,int16_t gz,
 					int16_t hx,int16_t hy,int16_t hz)
@@ -547,7 +548,7 @@ void UART1_ReportIMU(int16_t yaw,int16_t pitch,int16_t roll
 	int16_t hz  ??? Z?ADC?? ?? :???????
 	
 ????:??	
-*******************************************************************************/
+*******************************************************************************
 void UART1_ReportMotion(int16_t ax,int16_t ay,int16_t az,int16_t gx,int16_t gy,int16_t gz,
 					int16_t hx,int16_t hy,int16_t hz)
 {
@@ -636,7 +637,7 @@ void UART1_ReportMotion(int16_t ax,int16_t ay,int16_t az,int16_t gx,int16_t gy,i
 
 
 
-
+*/
 
 
 
@@ -801,7 +802,8 @@ void mpu6050_timer_callback(unsigned long para)
   //	  UART1_ReportIMU(Yaw,Pitch, Roll,0,0,0,0);
 	//    UART1_ReportMotion(accel[0],accel[1],accel[2],gyro[0],gyro[1],gyro[2],hmc.hx,hmc.hy,hmc.hz);
 		Uart1_Send_AF();
-		
+		void CONTROL(float rol, float pit, float yaw);
+	//	CONTROL(Roll,Pitch, Yaw);
 		
 	//   char id=	Single_Read(0x3C,10);
 	//	Print(id);
@@ -893,6 +895,101 @@ void SYSTICK_Init(void)
 {		
 	while (SysTick_Config(SystemCoreClock/ 100000));
 }
+
+
+
+ void Timer4_Init(u16 arr,u16 psc)
+ {    
+ //???????? IO???  
+RCC->APB2ENR|=1<<0;    //??  
+RCC->APB1ENR|=1<<2;    //TIM4 ????  
+RCC->APB2ENR|=1<<3;    //??PORTB?? 
+   
+GPIOB->CRL&=0XFFFFFFF0;//PB0 ??  
+GPIOB->CRL|=0X0000000B;//??????       
+GPIOB->ODR|=1<<0;//PB0 ??   
+    
+GPIOB->CRL&=0XFFFFFF0F;//PB1 ??  
+GPIOB->CRL|=0X000000B0;//??????       
+GPIOB->ODR|=1<<1;//PB1 ??   
+ 
+GPIOB->CRH&=0XFFFFFFF0;//PB8 ??  
+GPIOB->CRH|=0X0000000B;//??????       
+GPIOB->ODR|=1<<8;//PB8 ??  
+ 
+GPIOB->CRH&=0XFFFFFF0F;//PB9 ??  
+GPIOB->CRH|=0X000000B0;//??????       
+GPIOB->ODR|=1<<9;//PB9 ??   
+   
+TIM4->ARR=arr;//??????????   
+TIM4->PSC=psc;//???????  
+ 
+TIM4->CCMR1|=6<<4;  //CH1 PWM1??      
+ //TIM4->CCMR1|=1<<3; //CH1 ?????       
+TIM4->CCER|=1<<0;  //OC1  ????     
+TIM4->CR1=0x0080;  //ARPE??   
+ 
+TIM4->CCMR1|=6<<12;  //CH2 PWM1??      
+ //TIM4->CCMR1|=1<<11; //CH2 ?????       
+TIM4->CCER|=1<<4;   //OC2  ????      
+TIM4->CR1=0x0080;   //ARPE?? 
+ 
+TIM4->CCMR2|=6<<4;  //CH3 PWM1??      
+ //TIM4->CCMR2|=1<<3; //CH3 ?????    
+TIM4->CCER|=1<<8;  //OC3  ????      
+TIM4->CR1=0x0080;   //ARPE?? 
+ 
+TIM4->CCMR2|=6<<12;  //CH4 PWM1??      
+ //TIM4->CCMR2|=1<<11; //CH4 ?????       
+TIM4->CCER|=1<<12;   //OC4  ????      
+TIM4->CR1=0x0080;   //ARPE?? 
+ 
+
+ TIM4->CR1|=0x01;    //?????4
+ 
+TIM4->CCR1 = 1000;  //CH1?????  
+TIM4->CCR2 = 2000;  //CH2?????
+TIM4->CCR3 = 3000;   
+TIM4->CCR4 = 4000;  //CH6?????                 
+          
+}    
+void Moto_Init(void)
+{
+	GPIO_InitTypeDef GPIO_InitStructure;
+	//使能电机用的时钟
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE); 
+	//设置电机使用到得管脚
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_8 | GPIO_Pin_9 ; 
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz; 
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP; 
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	
+	Timer4_Init(5000,0);
+	
+}
+#define Moto_PwmMax 5000
+int16_t MOTO1_PWM = 0;
+int16_t MOTO2_PWM = 0;
+int16_t MOTO3_PWM = 0;
+int16_t MOTO4_PWM = 0;
+
+void Moto_PwmRflash(int16_t MOTO1_PWM,int16_t MOTO2_PWM,int16_t MOTO3_PWM,int16_t MOTO4_PWM)
+{		
+	if(MOTO1_PWM>Moto_PwmMax)	MOTO1_PWM = Moto_PwmMax;
+	if(MOTO2_PWM>Moto_PwmMax)	MOTO2_PWM = Moto_PwmMax;
+	if(MOTO3_PWM>Moto_PwmMax)	MOTO3_PWM = Moto_PwmMax;
+	if(MOTO4_PWM>Moto_PwmMax)	MOTO4_PWM = Moto_PwmMax;
+	if(MOTO1_PWM<0)	MOTO1_PWM = 0;
+	if(MOTO2_PWM<0)	MOTO2_PWM = 0;
+	if(MOTO3_PWM<0)	MOTO3_PWM = 0;
+	if(MOTO4_PWM<0)	MOTO4_PWM = 0;
+	
+	TIM4->CCR1 = MOTO1_PWM;
+	TIM4->CCR2 = MOTO2_PWM;
+	TIM4->CCR3 = MOTO3_PWM;
+	TIM4->CCR4 = MOTO4_PWM;
+}
+
 int main(void)
 {
 	
@@ -913,6 +1010,7 @@ int main(void)
   USART_Configuration();
   i2cInit();//IIC总线的初始化，尼玛纠结了这么长时间
 	HMC5883L_Init();
+	Moto_Init();
 char id=	Single_Read(0x3C,10);
 Print(id);
 //	HMC5883L_Start();
@@ -971,29 +1069,29 @@ Print(id);
 	        DMP_FEATURE_ANDROID_ORIENT | DMP_FEATURE_SEND_RAW_ACCEL | DMP_FEATURE_SEND_CAL_GYRO |
 	        DMP_FEATURE_GYRO_CAL))
 	  {
-	  	 PrintChar("dmp_enable_feature complete ......\n");
+	//  	 PrintChar("dmp_enable_feature complete ......\n");
 	  }
 	  else
 	  {
-	  	 PrintChar("dmp_enable_feature come across error ......\n");
+	  //	 PrintChar("dmp_enable_feature come across error ......\n");
 	  }
 	  //dmp_set_fifo_rate
 	  if(!dmp_set_fifo_rate(DEFAULT_MPU_HZ))
 	  {
-	  	 PrintChar("dmp_set_fifo_rate complete ......\n");
+	  //	 PrintChar("dmp_set_fifo_rate complete ......\n");
 	  }
 	  else
 	  {
-	  	 PrintChar("dmp_set_fifo_rate come across error ......\n");
+	  //	 PrintChar("dmp_set_fifo_rate come across error ......\n");
 	  }
 	  run_self_test();
 	  if(!mpu_set_dmp_state(1))
 	  {
-	  	 PrintChar("mpu_set_dmp_state complete ......\n");
+	 // 	 PrintChar("mpu_set_dmp_state complete ......\n");
 	  }
 	  else
 	  {
-	  	 PrintChar("mpu_set_dmp_state come across error ......\n");
+	 // 	 PrintChar("mpu_set_dmp_state come across error ......\n");
 	  }
   }
   SYSTICK_Init();
