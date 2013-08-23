@@ -25,7 +25,7 @@
 #define NO_MOTION       (1)
 
 /* Starting sampling rate. */
-#define DEFAULT_MPU_HZ  (500)
+#define DEFAULT_MPU_HZ  (20)
 
 #define FLASH_SIZE      (512)
 #define FLASH_MEM_START ((void*)0x1800)
@@ -471,6 +471,9 @@ void UART1_ReportIMU(int16_t yaw,int16_t pitch,int16_t roll
 {
  	unsigned int temp=0xaF+2;
 	char ctemp;
+	yaw=yaw*10;
+	pitch = pitch*10;
+	roll=roll*10;
 	UART1_Put_Char(0xa5);
 	UART1_Put_Char(0x5a);
 	UART1_Put_Char(14+2);
@@ -663,16 +666,79 @@ tg_HMC5883L_TYPE hmc;
 
 
 
-			
+
+short Yaw,Roll,Pitch;
+short gyro[3], accel[3], sensors;
+
+uint8_t Uart1_Put_Char(unsigned char c)
+{
+	
+  UsartSend(c);
+	return 1;
+}
+	
+void Uart1_Send_AF(void)
+{
+	uint8_t sum = 0;
+	sum += Uart1_Put_Char(0x88);
+	sum += Uart1_Put_Char(0xAF);
+	sum += Uart1_Put_Char(0x1c);
+	sum += Uart1_Put_Char(BYTE1(accel[0]));
+	sum += Uart1_Put_Char(BYTE0(accel[0]));
+	sum += Uart1_Put_Char(BYTE1(accel[1]));
+	sum += Uart1_Put_Char(BYTE0(accel[1]));
+	sum += Uart1_Put_Char(BYTE1(accel[2]));
+	sum += Uart1_Put_Char(BYTE0(accel[2]));
+	sum += Uart1_Put_Char(BYTE1(gyro[0]));
+	sum += Uart1_Put_Char(BYTE0(gyro[0]));
+	sum += Uart1_Put_Char(BYTE1(gyro[1]));
+	sum += Uart1_Put_Char(BYTE0(gyro[1]));
+	sum += Uart1_Put_Char(BYTE1(gyro[2]));
+	sum += Uart1_Put_Char(BYTE0(gyro[2]));
+	
+	sum += Uart1_Put_Char(BYTE1(hmc.hx));
+	sum += Uart1_Put_Char(BYTE0(hmc.hx));
+	sum += Uart1_Put_Char(BYTE1(hmc.hy));
+	sum += Uart1_Put_Char(BYTE0(hmc.hy));
+	sum += Uart1_Put_Char(BYTE1(hmc.hz));
+	sum += Uart1_Put_Char(BYTE0(hmc.hz));
+	
+//	sum += Uart1_Put_Int16(0);
+//	sum += Uart1_Put_Int16(0);
+//	sum += Uart1_Put_Int16(0);
+ 
+ int _temp;
+	_temp = (int)(Roll*100);
+	
+	
+	sum += Uart1_Put_Char(BYTE1(_temp));
+	sum += Uart1_Put_Char(BYTE0(_temp));
+	_temp = (int)(Pitch*100);
+	
+	sum += Uart1_Put_Char(BYTE1(_temp));
+	sum += Uart1_Put_Char(BYTE0(_temp));
+		_temp = (int)(Yaw*10);
+	sum += Uart1_Put_Char(BYTE1(_temp));
+	sum += Uart1_Put_Char(BYTE0(_temp));
+	
+	sum += Uart1_Put_Char(0);
+	sum += Uart1_Put_Char(0);
+	sum += Uart1_Put_Char(0);
+	sum += Uart1_Put_Char(0);
+	
+	Uart1_Put_Char(sum);
+}
 void mpu6050_timer_callback(unsigned long para)
 {
 	
 		
      unsigned long sensor_timestamp;
-     short gyro[3], accel[3], sensors;
+   //  short gyro[3], accel[3], sensors;
      unsigned char more;
      long quat[4];
-	   short Yaw,Roll,Pitch;
+	  
+	
+	   char ready=0;
 		
 	   dmp_read_fifo(gyro, accel, quat, &sensor_timestamp, &sensors,
                 &more);	 
@@ -704,10 +770,12 @@ void mpu6050_timer_callback(unsigned long para)
 		// PrintInt(quat[2]);PrintChar(" ");
 	//	 PrintInt(quat[3]);PrintChar(" \n\n");
 		 
+		 ready|=0x01;
 		 
-		 Pitch  =(short)( asin(-2 * q1 * q3 + 2 * q0* q2)* 573); // pitch
-  	 Roll =(short) (atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2* q2 + 1)* 573); // roll
-		 Yaw = 	(short)(atan2(2*(q1*q2 + q0*q3),q0*q0+q1*q1-q2*q2-q3*q3) * 573);
+		 
+		 Pitch  =(short)( asin(-2 * q1 * q3 + 2 * q0* q2)* 57.3); // pitch
+  	 Roll =(short) (atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2* q2 + 1)* 57.3); // roll
+		 Yaw = 	(short)(atan2(2*(q1*q2 + q0*q3),q0*q0+q1*q1-q2*q2-q3*q3) * 57.3);
 		 
 		
 		 
@@ -717,19 +785,24 @@ void mpu6050_timer_callback(unsigned long para)
 //		 PrintInt(gyro[0]);PrintChar(" ");
 //		 PrintInt(gyro[1]);PrintChar(" ");
 //		 PrintInt(gyro[2]);PrintChar(" \n\n");
+			ready|=0x02;
    }
 	 if(sensors & INV_XYZ_ACCEL)
 	 {
 //		 PrintInt(accel[0]);PrintChar(" ");
 //		 PrintInt(accel[1]);PrintChar(" ");
 //		 PrintInt(accel[2]);PrintChar(" \n");
+		 ready|=0x04;
 		 }
       //send_packet(PACKET_TYPE_QUAT, quat);
-	if (sensors & INV_WXYZ_QUAT ){  
+	if (ready == 0x07 ){  
 		 
-		 
-  	    UART1_ReportIMU(Yaw,Pitch, Roll,0,0,0,0);
-	    UART1_ReportMotion(accel[0],accel[1],accel[2],gyro[0],gyro[1],gyro[2],hmc.hx,hmc.hy,hmc.hz);
+		 ready =0;
+  //	  UART1_ReportIMU(Yaw,Pitch, Roll,0,0,0,0);
+	//    UART1_ReportMotion(accel[0],accel[1],accel[2],gyro[0],gyro[1],gyro[2],hmc.hx,hmc.hy,hmc.hz);
+		Uart1_Send_AF();
+		
+		
 	//   char id=	Single_Read(0x3C,10);
 	//	Print(id);
 	}
@@ -766,7 +839,7 @@ HMC5883L_Start();
 
 struct minus_timer mpu6050_timer =
 {
-	.expires = -50,
+	.expires = -100,
 	.callback = &mpu6050_timer_callback,
 	.data=(unsigned long)&mpu6050_timer
 };
@@ -800,16 +873,17 @@ void LED_GPIO_Config(void)
 
 static void LedLight(unsigned long para)
 {
-	/*static unsigned char i=13;
+	static unsigned char i=13;
 	GPIO_SetBits(GPIOC,GPIO_Pin_13|GPIO_Pin_14|GPIO_Pin_15);	
   GPIO_ResetBits(GPIOC,1<<i);	
 	if(i==15) i=13;else i++;
-	*/
+	
 
 }
 
 struct minus_timer LedTimer=
 {
+      .ticks =5000,
 	.expires = -2520,
 	.callback = &LedLight,
 	.data=(unsigned long)&LedTimer
@@ -823,7 +897,7 @@ int main(void)
 {
 	
 	LED_GPIO_Config();
-	SYSTICK_Init();
+	
   /*!< At this stage the microcontroller clock setting is already configured, 
        this is done through SystemInit() function which is called from startup
        file (startup_stm32f10x_xx.s) before to branch to application main.
@@ -922,10 +996,11 @@ Print(id);
 	  	 PrintChar("mpu_set_dmp_state come across error ......\n");
 	  }
   }
- 	minus_add_timer(&LedTimer);		
+  SYSTICK_Init();
+  minus_add_timer(&LedTimer);		
   minus_add_timer(&mpu6050_timer);	
 	
-	minus_sched();
+  minus_sched();
   
 }
 void Clock_Enable(void)
