@@ -64,11 +64,11 @@ void CONTROL(float rol, float pit, float yaw)
 
 void Pid_init(void)
 {
-	PID_ROL.P = 15;
+	PID_ROL.P = 35;
 	PID_ROL.I = 0;
 	PID_ROL.D = 0.2;
 	
-	PID_PIT.P = 15;
+	PID_PIT.P = 35;
 	PID_PIT.I = 0;
 	PID_PIT.D = 0.2;
 	
