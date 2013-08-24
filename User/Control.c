@@ -3,7 +3,7 @@
 
 
 PID PID_ROL,PID_PIT,PID_YAW;
-u8 ARMED = 0;
+u8 ARMED = 1;
 
 void Pid_init(void);
 
@@ -26,33 +26,49 @@ void CONTROL(float rol, float pit, float yaw)
 	PID_ROL.OUT = PID_ROL.pout + PID_ROL.iout + PID_ROL.dout;
 	PID_PIT.OUT = PID_PIT.pout + PID_PIT.iout + PID_PIT.dout;
 	PID_YAW.OUT = PID_YAW.pout + PID_YAW.iout + PID_YAW.dout;
+	/*
+	u16 t;
+	t = (u16)PID_ROL.OUT;
 	
-	#define THROTTLE 1300 //TBD
-	if(THROTTLE>1200)
+	PrintInt(t);
+	PrintChar("\n\r");
+	
+	t = (u16)PID_PIT.OUT;
+	
+	PrintInt(t);
+	PrintChar("\n\r");
+	t = (u16)PID_YAW.OUT;
+	
+	PrintInt(t);
+	PrintChar("\n\r");
+	*/
+	#define THROTTLE 2000 //TBD
+	//if(THROTTLE>1200)
 	{
-		moto1 = THROTTLE - 1000 - PID_ROL.OUT - PID_PIT.OUT + PID_YAW.OUT;
-		moto2 = THROTTLE - 1000 + PID_ROL.OUT - PID_PIT.OUT - PID_YAW.OUT;
-		moto3 =THROTTLE - 1000 + PID_ROL.OUT + PID_PIT.OUT + PID_YAW.OUT;
-		moto4 = THROTTLE - 1000 - PID_ROL.OUT + PID_PIT.OUT - PID_YAW.OUT;
+		moto1 = THROTTLE  - PID_ROL.OUT - PID_PIT.OUT + PID_YAW.OUT;
+		moto2 = THROTTLE  + PID_ROL.OUT - PID_PIT.OUT - PID_YAW.OUT;
+		moto3 = THROTTLE  + PID_ROL.OUT + PID_PIT.OUT + PID_YAW.OUT;
+		moto4 = THROTTLE  - PID_ROL.OUT + PID_PIT.OUT - PID_YAW.OUT;
 	}
-	else
+	/*else
 	{
 		moto1 = 0;
 		moto2 = 0;
 		moto3 = 0;
 		moto4 = 0;
 	}
-	if(ARMED)	Moto_PwmRflash(moto1,moto2,moto3,moto4);
-	else			Moto_PwmRflash(0,0,0,0);
+	*/
+		Moto_PwmRflash(moto1,moto2,moto3,moto4);
+//	else			Moto_PwmRflash(0,0,0,0);
 }
 
 void Pid_init(void)
 {
-	PID_ROL.P = 12;
+	PID_ROL.P = 15;
 	PID_ROL.I = 0;
 	PID_ROL.D = 0.2;
 	
-	PID_PIT.P = 12;
+	PID_PIT.P = 15;
 	PID_PIT.I = 0;
 	PID_PIT.D = 0.2;
 	

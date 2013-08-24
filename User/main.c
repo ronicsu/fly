@@ -80,9 +80,9 @@ volatile unsigned char rx_new;
  * board at Invensense. If needed, please modify the matrices to match the
  * chip-to-body matrix for your particular set up.
  */
-static signed char gyro_orientation[9] = {1, 0, 0,
+static signed char gyro_orientation[9] = {-1, 0, 0,
                                            0, 1, 0,
-                                           0, 0, 1};
+                                           0, 0, -1};
 
 enum packet_type_e {
     PACKET_TYPE_ACCEL,
@@ -801,9 +801,9 @@ void mpu6050_timer_callback(unsigned long para)
 		 ready =0;
   //	  UART1_ReportIMU(Yaw,Pitch, Roll,0,0,0,0);
 	//    UART1_ReportMotion(accel[0],accel[1],accel[2],gyro[0],gyro[1],gyro[2],hmc.hx,hmc.hy,hmc.hz);
-		Uart1_Send_AF();
+	//	Uart1_Send_AF();
 		void CONTROL(float rol, float pit, float yaw);
-		//CONTROL(Roll,Pitch, Yaw);
+		CONTROL(Roll,Pitch, Yaw);
 		
 	//   char id=	Single_Read(0x3C,10);
 	//	Print(id);
@@ -841,7 +841,7 @@ HMC5883L_Start();
 
 struct minus_timer mpu6050_timer =
 {
-	.expires = -100,
+	.expires = -250,
 	.callback = &mpu6050_timer_callback,
 	.data=(unsigned long)&mpu6050_timer
 };
@@ -934,8 +934,8 @@ TIM4->CR1=0x0080;   //ARPE??
  TIM4->CR1|=0x01;    //?????4
  
 
-TIM4->CCR3 = 3000;   
-TIM4->CCR4 = 4000;  //CH6?????                 
+TIM4->CCR3 = 0;   
+TIM4->CCR4 = 0;  //CH6?????                 
           
 }    
  void Timer3_Init(u16 arr,u16 psc)
@@ -978,8 +978,8 @@ TIM3->CR1=0x0080;   //ARPE??
  
 //TIM3->CCR1 = 1000;  //CH1?????  
 //TIM3->CCR2 = 4000;  //CH2?????
-TIM3->CCR3 = 2000;   
-TIM3->CCR4 = 3035;  //CH6?????                 
+TIM3->CCR3 = 0;   
+TIM3->CCR4 = 0;  //CH6?????                 
           
 } 
  
@@ -994,6 +994,7 @@ void Moto_Init(void)
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz; 
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP; 
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	GPIO_ResetBits(GPIOB,GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_8 | GPIO_Pin_9);
 	
 	Timer4_Init(5000,0);
 	Timer3_Init(5000,0);
@@ -1006,7 +1007,18 @@ int16_t MOTO3_PWM = 0;
 int16_t MOTO4_PWM = 0;
 
 void Moto_PwmRflash(int16_t MOTO1_PWM,int16_t MOTO2_PWM,int16_t MOTO3_PWM,int16_t MOTO4_PWM)
-{		
+{	
+
+	PrintChar("\n\r\n\r\n\r");
+	
+	PrintInt(MOTO1_PWM);
+  PrintChar("\r\n");
+	PrintInt(MOTO2_PWM);
+  PrintChar("\r\n");
+	PrintInt(MOTO3_PWM);
+  PrintChar("\r\n");
+	PrintInt(MOTO4_PWM);
+	
 	if(MOTO1_PWM>Moto_PwmMax)	MOTO1_PWM = Moto_PwmMax;
 	if(MOTO2_PWM>Moto_PwmMax)	MOTO2_PWM = Moto_PwmMax;
 	if(MOTO3_PWM>Moto_PwmMax)	MOTO3_PWM = Moto_PwmMax;
@@ -1016,17 +1028,19 @@ void Moto_PwmRflash(int16_t MOTO1_PWM,int16_t MOTO2_PWM,int16_t MOTO3_PWM,int16_
 	if(MOTO3_PWM<0)	MOTO3_PWM = 0;
 	if(MOTO4_PWM<0)	MOTO4_PWM = 0;
 	
-	TIM4->CCR1 = MOTO1_PWM;
-	TIM4->CCR2 = MOTO2_PWM;
-	TIM4->CCR3 = MOTO3_PWM;
-	TIM4->CCR4 = MOTO4_PWM;
+	
+  
+	TIM4->CCR3 = MOTO1_PWM; //motor1
+	TIM4->CCR4 = MOTO2_PWM; //motor2
+	TIM3->CCR3 = MOTO3_PWM; //motor3
+	TIM3->CCR4 = MOTO4_PWM; //motor4
 }
 
 int main(void)
 {
-	
+	Moto_Init();
 	LED_GPIO_Config();
-	
+	Pid_init();
   /*!< At this stage the microcontroller clock setting is already configured, 
        this is done through SystemInit() function which is called from startup
        file (startup_stm32f10x_xx.s) before to branch to application main.
@@ -1042,7 +1056,7 @@ int main(void)
   USART_Configuration();
   i2cInit();//IIC总线的初始化，尼玛纠结了这么长时间
 	HMC5883L_Init();
-	Moto_Init();
+	
 char id=	Single_Read(0x3C,10);
 Print(id);
 //	HMC5883L_Start();
