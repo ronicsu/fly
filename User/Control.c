@@ -58,7 +58,7 @@ void CONTROL(float rol, float pit, float yaw)
 		moto4 = 0;
 	}
 	*/
-		Moto_PwmRflash(moto1,moto2,moto3,moto4);
+	//	Moto_PwmRflash(moto1,moto2,moto3,moto4);
 //	else			Moto_PwmRflash(0,0,0,0);
 }
 

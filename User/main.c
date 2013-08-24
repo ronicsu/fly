@@ -801,7 +801,7 @@ void mpu6050_timer_callback(unsigned long para)
 		 ready =0;
   //	  UART1_ReportIMU(Yaw,Pitch, Roll,0,0,0,0);
 	//    UART1_ReportMotion(accel[0],accel[1],accel[2],gyro[0],gyro[1],gyro[2],hmc.hx,hmc.hy,hmc.hz);
-	//	Uart1_Send_AF();
+		Uart1_Send_AF();
 		void CONTROL(float rol, float pit, float yaw);
 		CONTROL(Roll,Pitch, Yaw);
 		
@@ -841,7 +841,7 @@ HMC5883L_Start();
 
 struct minus_timer mpu6050_timer =
 {
-	.expires = -250,
+	.expires = -50,
 	.callback = &mpu6050_timer_callback,
 	.data=(unsigned long)&mpu6050_timer
 };
@@ -1009,7 +1009,7 @@ int16_t MOTO4_PWM = 0;
 void Moto_PwmRflash(int16_t MOTO1_PWM,int16_t MOTO2_PWM,int16_t MOTO3_PWM,int16_t MOTO4_PWM)
 {	
 
-	PrintChar("\n\r\n\r\n\r");
+/*	PrintChar("\n\r\n\r\n\r");
 	
 	PrintInt(MOTO1_PWM);
   PrintChar("\r\n");
@@ -1018,7 +1018,7 @@ void Moto_PwmRflash(int16_t MOTO1_PWM,int16_t MOTO2_PWM,int16_t MOTO3_PWM,int16_
 	PrintInt(MOTO3_PWM);
   PrintChar("\r\n");
 	PrintInt(MOTO4_PWM);
-	
+	*/
 	if(MOTO1_PWM>Moto_PwmMax)	MOTO1_PWM = Moto_PwmMax;
 	if(MOTO2_PWM>Moto_PwmMax)	MOTO2_PWM = Moto_PwmMax;
 	if(MOTO3_PWM>Moto_PwmMax)	MOTO3_PWM = Moto_PwmMax;
