@@ -3,7 +3,7 @@
 
 
 PID PID_ROL,PID_PIT,PID_YAW;
-u8 ARMED = 1;
+u8 ARMED = 0;
 
 void Pid_init(void);
 
@@ -42,7 +42,7 @@ void CONTROL(float rol, float pit, float yaw)
 	PrintInt(t);
 	PrintChar("\n\r");
 	*/
-	#define THROTTLE 2000 //TBD
+	#define THROTTLE 350 //TBD
 	//if(THROTTLE>1200)
 	{
 		moto1 = THROTTLE  - PID_ROL.OUT - PID_PIT.OUT + PID_YAW.OUT;
@@ -58,17 +58,17 @@ void CONTROL(float rol, float pit, float yaw)
 		moto4 = 0;
 	}
 	*/
-	//	Moto_PwmRflash(moto1,moto2,moto3,moto4);
-//	else			Moto_PwmRflash(0,0,0,0);
+	if(ARMED)	Moto_PwmRflash(moto1,moto2,moto3,moto4);
+	else			Moto_PwmRflash(0,0,0,0);
 }
 
 void Pid_init(void)
 {
-	PID_ROL.P = 35;
+	PID_ROL.P = 8;
 	PID_ROL.I = 0;
 	PID_ROL.D = 0.2;
 	
-	PID_PIT.P = 35;
+	PID_PIT.P = 8;
 	PID_PIT.I = 0;
 	PID_PIT.D = 0.2;
 	

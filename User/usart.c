@@ -146,3 +146,39 @@ int fputc(int ch,FILE *f)
     return ch;
 }
 
+//static u16 ch=0;
+
+#include "minus_os.h"
+extern struct minus_task console_task;
+void USART1_IRQHandler(void)
+{
+	 u16 ch;
+     
+  if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
+  {
+     USART_ITConfig(USART1, USART_IT_RXNE, DISABLE);
+     ch=USART_ReceiveData(USART1);
+     //USART_SendData(USART1, str1);
+     //while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET); 
+		 minus_sched_task(&console_task, (void*)ch);
+     USART_ITConfig( USART1,USART_IT_RXNE, ENABLE);
+  }
+}
+/*
+int ReadOneChar(char *c)
+{
+	if(ch!=0)
+  {
+    // USART_ITConfig(USART1, USART_IT_RXNE, DISABLE);
+    // *ch=USART_ReceiveData(USART1);
+  //   USART_SendData(USART1, 'a');
+  //   while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET); 
+    // USART_ITConfig( USART1,USART_IT_RXNE, ENABLE);
+		*c=ch;
+		ch=0;
+		return 0;
+  }else{
+		return -1;
+	}
+}
+*/

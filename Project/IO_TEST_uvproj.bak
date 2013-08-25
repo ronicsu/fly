@@ -446,6 +446,11 @@
               <FileType>1</FileType>
               <FilePath>..\User\minus_os.c</FilePath>
             </File>
+            <File>
+              <FileName>Control.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\Control.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

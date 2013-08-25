@@ -9,7 +9,7 @@
 #include "usart.h"
 #include "STM32_I2C.h"
 #include "minus_os.h"
-
+#include <stdio.h>
 /** @addtogroup STM32F10x_StdPeriph_Examples
   * @{
   */
@@ -992,15 +992,15 @@ void Moto_Init(void)
 	//设置电机使用到得管脚
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_8 | GPIO_Pin_9 ; 
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz; 
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP; 
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD; 
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 	GPIO_ResetBits(GPIOB,GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_8 | GPIO_Pin_9);
 	
-	Timer4_Init(5000,0);
-	Timer3_Init(5000,0);
+	Timer4_Init(999,0);
+	Timer3_Init(999,0);
 	
 }
-#define Moto_PwmMax 5000
+#define Moto_PwmMax 999
 int16_t MOTO1_PWM = 0;
 int16_t MOTO2_PWM = 0;
 int16_t MOTO3_PWM = 0;
@@ -1036,8 +1036,54 @@ void Moto_PwmRflash(int16_t MOTO1_PWM,int16_t MOTO2_PWM,int16_t MOTO3_PWM,int16_
 	TIM3->CCR4 = MOTO4_PWM; //motor4
 }
 
+void wait()
+{
+	volatile int i=0;
+	for(i=0;i<0x1000000;i++){}
+}
+void USART1_Config(void)
+{	
+	
+	GPIO_InitTypeDef GPIO_InitStructure;
+	NVIC_InitTypeDef NVIC_InitStructure;
+    USART_InitTypeDef USART_InitStructure;
+		
+	/*使能GPIOA时钟，使能串口1时钟*/
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1|RCC_APB2Periph_GPIOA,ENABLE);
+	
+	/*A9 TX复用推挽输出*/ 
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
+    /*A10 RX浮空输入 */ 
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;	
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
+	/*USART1*/
+	NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);	
+
+	/*配置USART1的工作模式*/
+	USART_InitStructure.USART_BaudRate = 115200;                 //波特率115200         
+	USART_InitStructure.USART_WordLength = USART_WordLength_8b;//字长8bit										
+	USART_InitStructure.USART_StopBits = USART_StopBits_1;	   //停止位1位									
+	USART_InitStructure.USART_Parity = USART_Parity_No;		   //无奇偶校验							
+	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;//收发使能
+	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;	//无硬件流控制							
+    USART_Init(USART1, &USART_InitStructure);   //初始化外设 USART1   
+    USART_Cmd(USART1, ENABLE);					//使能USART外设
+	USART_ITConfig(USART1,USART_IT_RXNE,ENABLE);//使能接收中断
+}
+
 int main(void)
 {
+//	wait();
 	Moto_Init();
 	LED_GPIO_Config();
 	Pid_init();
@@ -1053,7 +1099,8 @@ int main(void)
      immunity against EMI/EMC *************************************************/
 //  Clock_Enable();
 //  GPIO_Configuration(); 
-  USART_Configuration();
+//  USART_Configuration();
+	USART1_Config();
   i2cInit();//IIC总线的初始化，尼玛纠结了这么长时间
 	HMC5883L_Init();
 	
@@ -1143,10 +1190,14 @@ Print(id);
   SYSTICK_Init();
   minus_add_timer(&LedTimer);		
   minus_add_timer(&mpu6050_timer);	
-	
+//	printf("iamgood");
+	extern struct minus_task console_task;
+	minus_add_task(&console_task);
+	printf("wwwworld");
   minus_sched();
   
 }
+#ifdef REMOVE
 void Clock_Enable(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
@@ -1190,6 +1241,7 @@ void Delay(__IO uint32_t nCount)
 {
   for(; nCount != 0; nCount--);
 }
+#endif 
 
 #ifdef  USE_FULL_ASSERT
 /**

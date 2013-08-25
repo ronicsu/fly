@@ -30,13 +30,14 @@ extern struct minus_task minus_timer_task;
 
 
 
-extern struct minus_task mytask;
+//extern struct minus_task console_task;
 extern struct minus_task minus_timer_task;
 
 struct minus_task *minus_os_tasks[TASKS_TOTAL]=
 {
  &idle_task,
  &minus_timer_task,
+//	&console_task,
    
 };
 
