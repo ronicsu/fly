@@ -148,22 +148,32 @@ int fputc(int ch,FILE *f)
 
 //static u16 ch=0;
 
-#include "minus_os.h"
-extern struct minus_task console_task;
+//#include "minus_os.h"
+
+//extern struct minus_task console_task;
+
+
+void NRF_RxPacket( unsigned char ch);
+
 void USART1_IRQHandler(void)
 {
-	 u16 ch;
+	 u8 ch;
+	
+	//static u8 received_count =0;
      
   if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
   {
      USART_ITConfig(USART1, USART_IT_RXNE, DISABLE);
      ch=USART_ReceiveData(USART1);
+		NRF_RxPacket(ch);
      //USART_SendData(USART1, str1);
      //while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET); 
-		 minus_sched_task(&console_task, (void*)ch);
+//	 minus_sched_task(&console_task, (void*)ch);
      USART_ITConfig( USART1,USART_IT_RXNE, ENABLE);
   }
 }
+
+
 /*
 int ReadOneChar(char *c)
 {

@@ -1191,8 +1191,8 @@ Print(id);
   minus_add_timer(&LedTimer);		
   minus_add_timer(&mpu6050_timer);	
 //	printf("iamgood");
-	extern struct minus_task console_task;
-	minus_add_task(&console_task);
+//	extern struct minus_task console_task;
+//	minus_add_task(&console_task);
 	printf("wwwworld");
   minus_sched();
   
